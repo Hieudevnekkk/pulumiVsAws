@@ -28,12 +28,12 @@ const cloneDataLambdaZip = new aws.s3.BucketObject('cloneDataHandlerBucket', {
     contentType: 'application/zip',
 });
 
-// 1. Tạo IAM Role cho Lambda
+// Tạo IAM Role cho Lambda
 const mainLambdaRole = new aws.iam.Role('mainLambdaRole', {
     assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({ Service: 'lambda.amazonaws.com' }),
 });
 
-// 2. Gán quyền AWSLambdaBasicExecutionRole để ghi log vào CloudWatch
+// Gán quyền AWSLambdaBasicExecutionRole để ghi log vào CloudWatch
 const lambdaPolicyAttachment = new aws.iam.RolePolicyAttachment('lambdaBasicExecution', {
     role: mainLambdaRole.name,
     policyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
@@ -59,7 +59,7 @@ const mainLambdaPolicy = new aws.iam.Policy('mainLambdaPolicy', {
     ),
 });
 
-// 4. Gán policy vào IAM Role
+// Gán policy vào IAM Role
 new aws.iam.RolePolicyAttachment('mainLambdaPolicyAttachment', {
     role: mainLambdaRole.name,
     policyArn: mainLambdaPolicy.arn,
@@ -83,7 +83,7 @@ const mainLambda = new aws.lambda.Function(
     { dependsOn: [lambdaPolicyAttachment] }
 );
 
-// 3. Gán quyền để API Gateway gọi Lambda
+// Gán quyền để API Gateway gọi Lambda
 const lambdaPermission = new aws.lambda.Permission(
     'apiGatewayInvoke',
     {
@@ -95,7 +95,7 @@ const lambdaPermission = new aws.lambda.Permission(
     { dependsOn: [apiGateway, mainLambda] }
 );
 
-// 4. Tích hợp Lambda với API Gateway
+// Tích hợp Lambda với API Gateway
 const integration = new aws.apigatewayv2.Integration(
     'lambdaIntegration',
     {
@@ -106,14 +106,14 @@ const integration = new aws.apigatewayv2.Integration(
     { dependsOn: [lambdaPermission] }
 );
 
-// 5. Tạo route `/add`
+// Tạo route `/add`
 const route = new aws.apigatewayv2.Route('route', {
     apiId: apiGateway.id,
     routeKey: 'POST /add',
     target: pulumi.interpolate`integrations/${integration.id}`,
 });
 
-// 6. Triển khai API Gateway
+// Triển khai API Gateway
 const deployment = new aws.apigatewayv2.Deployment(
     'deployment',
     {
