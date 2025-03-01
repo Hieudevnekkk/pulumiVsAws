@@ -1,0 +1,11 @@
+name: testPulumi
+description: learning pulumi
+runtime:
+  name: nodejs
+  options:
+    typescript: false
+    packagemanager: npm
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-javascript
