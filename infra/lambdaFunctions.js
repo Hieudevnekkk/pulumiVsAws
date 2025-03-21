@@ -4,26 +4,42 @@ const { apiGateway } = require('./apiGateway');
 const { mainTable, logsTable, cloneTable } = require('./dynamodb');
 const { queue } = require('./sqs');
 
+const crypto = require('crypto');
+const fs = require('fs');
+
+// Đọc file và tạo hash MD5
+const mainHandlerfileBuffer = fs.readFileSync('./handlers/mainHandler.zip');
+const mainHandlerfileHash = crypto.createHash('md5').update(mainHandlerfileBuffer).digest('hex');
+
+const sqsHandlerfileBuffer = fs.readFileSync('./handlers/sqsHandler.zip');
+const sqsHandlerfileHash = crypto.createHash('md5').update(sqsHandlerfileBuffer).digest('hex');
+
+const cloneDataHandlerfileBuffer = fs.readFileSync('./handlers/cloneDataHandler.zip');
+const cloneDataHandlerfileHash = crypto
+    .createHash('md5')
+    .update(cloneDataHandlerfileBuffer)
+    .digest('hex');
+
 const bucket = new aws.s3.Bucket('lambdaBucket');
 
 // Upload file ZIP lên S3
 const mainLambdaZip = new aws.s3.BucketObject('mainHandlerBucket', {
     bucket: bucket.id,
-    key: 'mainHandler.zip',
+    key: `mainHandler-${mainHandlerfileHash}.zip`,
     source: new pulumi.asset.FileAsset('./handlers/mainHandler.zip'),
     contentType: 'application/zip',
 });
 
 const sqsLambdaZip = new aws.s3.BucketObject('sqsHandlerBucket', {
     bucket: bucket.id,
-    key: 'sqsHandler.zip',
+    key: `sqsHandler-${sqsHandlerfileHash}.zip`,
     source: new pulumi.asset.FileAsset('./handlers/sqsHandler.zip'),
     contentType: 'application/zip',
 });
 
 const cloneDataLambdaZip = new aws.s3.BucketObject('cloneDataHandlerBucket', {
     bucket: bucket.id,
-    key: 'cloneDataHandler.zip',
+    key: `cloneDataHandler-${cloneDataHandlerfileHash}.zip`,
     source: new pulumi.asset.FileAsset('./handlers/cloneDataHandler.zip'),
     contentType: 'application/zip',
 });

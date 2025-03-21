@@ -42,7 +42,10 @@ module.exports.handler = async (event) => {
             })
         );
 
-        return { statusCode: 200, body: JSON.stringify({ message: 'Success', item }) };
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ message: 'Thêm dữ liệu thành công', item }),
+        };
     } catch (error) {
         console.error('Error processing request:', error);
 
